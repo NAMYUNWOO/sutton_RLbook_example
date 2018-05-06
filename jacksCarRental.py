@@ -8,7 +8,7 @@ max_move = 5
 gamma = 0.9
 max_capa1 = 20
 max_capa2 = 20
-probposs = lambda l,n : math.exp(-l)*math.pow(l,n)/math.factorial(n)
+probposs = lambda l,n : math.pow(math.e,-l)*math.pow(l,n)/math.factorial(n)
 prob_req1 = lambda n : probposs(3,n)
 prob_req2 = lambda n : probposs(4,n)
 prob_ret1 = lambda n : probposs(3,n)
@@ -22,6 +22,8 @@ def state_iter(max_capa1,max_capa2):
 def policy_evaluation(values,policies):
     values_ = np.copy(values)
     for state in state_iter(max_capa1 , max_capa2):
+        values_at_state = 0
+        values_[s_1][s_2] = values_at_state
         a = policies[state[0]][state[1]]
         s_1,s_2 = state
         s_1_a,s_2_a = s_1 + a, s_2 - a 
@@ -29,7 +31,6 @@ def policy_evaluation(values,policies):
         if s_1_a < 0 or s_1_a > max_capa1 or s_2_a < 0 or s_2_a > max_capa2:
             continue
         
-        values_at_state = 0
         for next_state in state_iter(max_capa1 , max_capa2):
             ns_1,ns_2 = next_state
             for req_1 in range(s_1_a+1):
@@ -46,14 +47,14 @@ def policy_evaluation(values,policies):
 
 def policy_improvement(values,policies):
     for state in state_iter(max_capa1 , max_capa2):
+        s_1,s_2 = state
         action_values = np.ones(len(actions))*-np.Infinity
         for idx,a in enumerate(actions):
-            s_1,s_2 = state
+            value_at_action = 0
             s_1_a,s_2_a = s_1 + a, s_2 - a 
             carout = max_capa1 - s_1 + max_capa2 -s_2
             if s_1_a < 0 or s_1_a > max_capa1 or s_2_a < 0 or s_2_a > max_capa2:
                 continue
-            value_at_action = 0
             for next_state in state_iter(max_capa1 , max_capa2):
                 ns_1,ns_2 = next_state
                 for req_1 in range(s_1_a+1):
@@ -66,7 +67,7 @@ def policy_improvement(values,policies):
                         reward = abs(a)*r_cost+(req_1+req_2)*r_profit
                         value_at_action +=  prob_ret1(ret_1)*prob_req1(req_1)*prob_ret2(ret_2)*prob_req2(req_2)*(reward + gamma*values[ns_1][ns_2])
             action_values[idx] = value_at_action
-        policies[state[0]][state[1]] = actions[np.argmax(action_values)]
+        policies[s_1][s_2] = actions[np.argmax(action_values)]
     return policies
 
 def main():
