@@ -36,7 +36,7 @@ def policy_evaluation(values,policies):
                 for req_2 in range(s_2_a+1):
                     ret_1 = ns_1 - s_1_a + req_1
                     ret_2 = ns_2 - s_2_a + req_2
-                    if ret_1 < 0 or ret_2 < 0:
+                    if ret_1 < 0 or ret_2 < 0 or ret_1 >carout_1 or ret_2 > carout_2 :
                         continue
                     #print("state",state);print("action",a) ;print("next state",next_state);print(ret_1,req_1,ret_2,req_2);print("----------------------")
                     reward = abs(a)*r_cost+(req_1+req_2)*r_profit
@@ -48,7 +48,6 @@ def policy_improvement(values,policies):
     for state in state_iter(max_capa1 , max_capa2):
         action_values = np.ones(len(actions))*-np.Infinity
         for idx,a in enumerate(actions):
-            a = policies[state[0]][state[1]]
             s_1,s_2 = state
             s_1_a,s_2_a = s_1 + a, s_2 - a 
             carout_1, carout_2 = max_capa1 - s_1, max_capa2 -s_2
@@ -61,7 +60,7 @@ def policy_improvement(values,policies):
                     for req_2 in range(s_2_a+1):
                         ret_1 = ns_1 - s_1_a + req_1
                         ret_2 = ns_2 - s_2_a + req_2
-                        if ret_1 < 0 or ret_2 < 0:
+                        if ret_1 < 0 or ret_2 < 0 or ret_1 > carout_1 or ret_2 > carout_2 :
                             continue
                         #print("state",state);print("action",a) ;print("next state",next_state);print(ret_1,req_1,ret_2,req_2);print("----------------------")
                         reward = abs(a)*r_cost+(req_1+req_2)*r_profit
