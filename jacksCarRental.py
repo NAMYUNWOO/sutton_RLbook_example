@@ -22,10 +22,10 @@ def state_iter(max_capa1,max_capa2):
 def policy_evaluation(values,policies):
     values_ = np.copy(values)
     for state in state_iter(max_capa1 , max_capa2):
+        s_1,s_2 = state
         values_at_state = 0
         values_[s_1][s_2] = values_at_state
         a = policies[state[0]][state[1]]
-        s_1,s_2 = state
         s_1_a,s_2_a = s_1 + a, s_2 - a 
         carout = max_capa1 - s_1 + max_capa2 -s_2
         if s_1_a < 0 or s_1_a > max_capa1 or s_2_a < 0 or s_2_a > max_capa2:
