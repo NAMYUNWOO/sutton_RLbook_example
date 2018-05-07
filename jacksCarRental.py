@@ -27,7 +27,7 @@ def policy_evaluation(values,policies):
         values_[s_1][s_2] = values_at_state
         a = policies[s_1][s_2]
         a = policies[state[0]][state[1]]
-        s_1_a,s_2_a = s_1 + a, s_2 - a 
+        s_1_a,s_2_a = s_1 - a, s_2 + a 
         carout_1,carout_2 = max_capa1 - s_1 , max_capa2 -s_2
         if s_1_a < 0 or s_1_a > max_capa1 or s_2_a < 0 or s_2_a > max_capa2:
             continue
@@ -53,7 +53,7 @@ def policy_improvement(values,policies):
         action_values = np.ones(len(actions))*-np.Infinity
         for idx,a in enumerate(actions):
             value_at_action = 0
-            s_1_a,s_2_a = s_1 + a, s_2 - a 
+            s_1_a,s_2_a = s_1 - a, s_2 + a 
             carout_1,carout_2 = max_capa1 - s_1 , max_capa2 -s_2
             if s_1_a < 0 or s_1_a > max_capa1 or s_2_a < 0 or s_2_a > max_capa2:
                 continue
