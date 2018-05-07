@@ -22,27 +22,28 @@ def state_iter(max_capa1,max_capa2):
 def policy_evaluation(values,policies):
     values_ = np.copy(values)
     for state in state_iter(max_capa1 , max_capa2):
+        s_1,s_2 = state
         values_at_state = 0
         values_[s_1][s_2] = values_at_state
-        a = policies[state[0]][state[1]]
-        s_1,s_2 = state
+        a = policies[s_1][s_2]
         s_1_a,s_2_a = s_1 + a, s_2 - a 
-        carout = max_capa1 - s_1 + max_capa2 -s_2
+        carout_1,carout_2 = max_capa1 - s_1 , max_capa2 -s_2
         if s_1_a < 0 or s_1_a > max_capa1 or s_2_a < 0 or s_2_a > max_capa2:
             continue
-        
-        for next_state in state_iter(max_capa1 , max_capa2):
-            ns_1,ns_2 = next_state
-            for req_1 in range(s_1_a+1):
-                for req_2 in range(s_2_a+1):
-                    ret_1 = ns_1 - s_1_a + req_1
-                    ret_2 = ns_2 - s_2_a + req_2
-                    if ret_1 < 0 or ret_2 < 0 or ret_1 + ret_2 > carout :
-                        continue
-                    #print("state",state);print("action",a) ;print("next state",next_state);print(ret_1,req_1,ret_2,req_2);print("----------------------")
-                    reward = abs(a)*r_cost+(req_1+req_2)*r_profit
-                    values_at_state +=  prob_ret1(ret_1)*prob_req1(req_1)*prob_ret2(ret_2)*prob_req2(req_2)*(reward + gamma*values[ns_1][ns_2])
-        values_[s_1][s_2] = values_at_state
+        for req_1 in range(s_1_a+1):
+            for req_2 in range(s_2_a+1):
+                for ret_1 in range(carout_1+1):
+                    for ret_2 in range(carout_2 + 1):
+                        ns_1 = s_1_a + ret_1 - req_1
+                        ns_2 = s_2_a + ret_2 - req_2
+                        over_capa1 = ns_1 - min(max_capa1,ns_1)
+                        over_capa2 = ns_2 - min(max_capa2,ns_2)
+                        ns_1 += over_capa2
+                        ns_2 += over_capa1
+                        #print("state",state);print("action",a) ;print(ret_1,req_1,ret_2,req_2);print("next state",(ns_1,ns_2));print("----------------------")
+                        reward = abs(a)*r_cost+(req_1+req_2)*r_profit
+                        values_[s_1][s_2] +=  prob_ret1(ret_1)*prob_req1(req_1)*prob_ret2(ret_2)*prob_req2(req_2)*(reward + gamma*values[ns_1][ns_2])
+
     return values_
 
 def policy_improvement(values,policies):
@@ -52,20 +53,22 @@ def policy_improvement(values,policies):
         for idx,a in enumerate(actions):
             value_at_action = 0
             s_1_a,s_2_a = s_1 + a, s_2 - a 
-            carout = max_capa1 - s_1 + max_capa2 -s_2
+            carout_1,carout_2 = max_capa1 - s_1 , max_capa2 -s_2
             if s_1_a < 0 or s_1_a > max_capa1 or s_2_a < 0 or s_2_a > max_capa2:
                 continue
-            for next_state in state_iter(max_capa1 , max_capa2):
-                ns_1,ns_2 = next_state
-                for req_1 in range(s_1_a+1):
-                    for req_2 in range(s_2_a+1):
-                        ret_1 = ns_1 - s_1_a + req_1
-                        ret_2 = ns_2 - s_2_a + req_2
-                        if ret_1 < 0 or ret_2 < 0 or ret_1 + ret_2 > carout :
-                            continue
-                        #print("state",state);print("action",a) ;print("next state",next_state);print(ret_1,req_1,ret_2,req_2);print("----------------------")
-                        reward = abs(a)*r_cost+(req_1+req_2)*r_profit
-                        value_at_action +=  prob_ret1(ret_1)*prob_req1(req_1)*prob_ret2(ret_2)*prob_req2(req_2)*(reward + gamma*values[ns_1][ns_2])
+            for req_1 in range(s_1_a+1):
+                for req_2 in range(s_2_a+1):
+                    for ret_1 in range(carout_1 + 1):
+                        for ret_2 in range(carout_2 + 1):
+                            ns_1 = s_1_a + ret_1 - req_1
+                            ns_2 = s_2_a + ret_2 - req_2
+                            over_capa1 = ns_1 - min(max_capa1,ns_1)
+                            over_capa2 = ns_2 - min(max_capa2,ns_2)
+                            ns_1 += over_capa2
+                            ns_2 += over_capa1
+                            #print("state",state);print("action",a) ;print("next state",next_state);print(ret_1,req_1,ret_2,req_2);print("----------------------")
+                            reward = abs(a)*r_cost+(req_1+req_2)*r_profit
+                            value_at_action +=  prob_ret1(ret_1)*prob_req1(req_1)*prob_ret2(ret_2)*prob_req2(req_2)*(reward + gamma*values[ns_1][ns_2])
             action_values[idx] = value_at_action
         policies[s_1][s_2] = actions[np.argmax(action_values)]
     return policies
