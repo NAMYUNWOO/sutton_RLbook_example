@@ -39,8 +39,8 @@ def policy_evaluation(values,policies):
                         ns_2 = s_2_a + ret_2 - req_2
                         over_capa1 = ns_1 - min(max_capa1,ns_1)
                         over_capa2 = ns_2 - min(max_capa2,ns_2)
-                        ns_1 += over_capa2
-                        ns_2 += over_capa1
+                        ns_1 = ns_1 + over_capa2 - over_capa1
+                        ns_2 = ns_2 + over_capa1 - over_capa2
                         #print("state",state);print("action",a) ;print(ret_1,req_1,ret_2,req_2);print("next state",(ns_1,ns_2));print("----------------------")
                         reward = abs(a)*r_cost+(req_1+req_2)*r_profit
                         values_[s_1][s_2] +=  prob_ret1(ret_1)*prob_req1(req_1)*prob_ret2(ret_2)*prob_req2(req_2)*(reward + gamma*values[ns_1][ns_2])
@@ -65,8 +65,8 @@ def policy_improvement(values,policies):
                             ns_2 = s_2_a + ret_2 - req_2
                             over_capa1 = ns_1 - min(max_capa1,ns_1)
                             over_capa2 = ns_2 - min(max_capa2,ns_2)
-                            ns_1 += over_capa2
-                            ns_2 += over_capa1
+                            ns_1 = ns_1 + over_capa2 - over_capa1
+                            ns_2 = ns_2 + over_capa1 - over_capa2
                             #print("state",state);print("action",a) ;print("next state",next_state);print(ret_1,req_1,ret_2,req_2);print("----------------------")
                             reward = abs(a)*r_cost+(req_1+req_2)*r_profit
                             value_at_action +=  prob_ret1(ret_1)*prob_req1(req_1)*prob_ret2(ret_2)*prob_req2(req_2)*(reward + gamma*values[ns_1][ns_2])
@@ -81,7 +81,7 @@ def main():
         print("iter %d"%i)
         np.savetxt("value_%d.csv"%i, values, delimiter=",")
         np.savetxt("policy_%d.csv"%i, policies.astype(int), delimiter=",")
-        for _ in range(4):
+        for _ in range(10):
             values = policy_evaluation(values,policies)
         policies = policy_improvement(values,policies)
     
