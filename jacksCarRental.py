@@ -1,6 +1,8 @@
+import pandas as pd
 import numpy as np
 import math
 import pandas as pd
+from printResult import *
 
 r_profit = 10
 r_cost = -2
@@ -14,6 +16,54 @@ prob_req2 = lambda n : probposs(4,n)
 prob_ret1 = lambda n : probposs(3,n)
 prob_ret2 = lambda n : probposs(2,n)
 actions = list(range(-max_move,max_move+1))
+def printPolicy(k):
+    print("{0:^65}".format("policy"))
+    pol = pd.read_csv("policy_%d.csv"%k,header=None,dtype=int)
+    pol = np.array(pol)
+    for idx in range(len(pol),-1,-1):
+        if idx == len(pol):
+            print("{0:^3}".format(" "),end=" ")
+            print("{0:^3}".format(0),end="")
+            for _ in range(len(pol[0])-2):
+                print("{0:^3}".format("-"),end="")
+            print("{0:^3}".format(len(pol)-1))
+            print("\n")
+            continue
+        i = pol[idx]
+        if idx == len(pol)-1:
+            print("{0:^3}".format(20),end=" ")
+        elif idx == 0:
+            print("{0:^3}".format(0),end=" ")
+        else:
+            print("{0:^3}".format("|"),end=" ")
+        for j in i:
+            print("{0:^3}".format(j),end="")
+        print("\n")
+
+def printValue(k):
+    print("{0:^130}".format("value"))
+    val = pd.read_csv("value_%d.csv"%k,header=None)
+    val = val.applymap(lambda x:round(x,1))
+    val = np.array(val)
+    for idx in range(len(val),-1,-1):
+        if idx == len(val):
+            print("{0:^6}".format(" "),end=" ")
+            print("{0:^6}".format(0),end="")
+            for _ in range(len(val[0])-2):
+                print("{0:^6}".format("-"),end="")
+            print("{0:^6}".format(len(val)-1))
+            print("\n")
+            continue
+        i = val[idx]
+        if idx == len(val)-1:
+            print("{0:^6}".format(20),end=" ")
+        elif idx == 0:
+            print("{0:^6}".format(0),end=" ")
+        else:
+            print("{0:^6}".format("|"),end=" ")
+        for j in i:
+            print("{0:^6}".format(j),end="")
+        print("\n")
 def state_iter(max_capa1,max_capa2):
     for n in range(max_capa1+1):
         for m in range(max_capa2+1):
@@ -23,10 +73,8 @@ def policy_evaluation(values,policies):
     values_ = np.copy(values)
     for state in state_iter(max_capa1 , max_capa2):
         s_1,s_2 = state
-        values_at_state = 0
-        values_[s_1][s_2] = values_at_state
+        values_[s_1][s_2] = 0
         a = policies[s_1][s_2]
-        a = policies[state[0]][state[1]]
         s_1_a,s_2_a = s_1 - a, s_2 + a 
         carout_1,carout_2 = max_capa1 - s_1 , max_capa2 -s_2
         if s_1_a < 0 or s_1_a > max_capa1 or s_2_a < 0 or s_2_a > max_capa2:
@@ -81,6 +129,9 @@ def main():
         print("iter %d"%i)
         np.savetxt("value_%d.csv"%i, values, delimiter=",")
         np.savetxt("policy_%d.csv"%i, policies.astype(int), delimiter=",")
+        printPolicy(i)
+        print("\n\n")
+        printValue(i)
         for _ in range(10):
             values = policy_evaluation(values,policies)
         policies = policy_improvement(values,policies)
