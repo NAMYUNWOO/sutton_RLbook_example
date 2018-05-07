@@ -17,7 +17,8 @@ prob_ret1 = lambda n : probposs(3,n)
 prob_ret2 = lambda n : probposs(2,n)
 actions = list(range(-max_move,max_move+1))
 def printPolicy(k):
-    print("{0:^65}".format("policy"))
+    title = "{0:^"+str(max_capa2*3)+"}"
+    print(title.format("policy"))
     pol = pd.read_csv("policy_%d.csv"%k,header=None,dtype=int)
     pol = np.array(pol)
     for idx in range(len(pol),-1,-1):
@@ -26,12 +27,12 @@ def printPolicy(k):
             print("{0:^3}".format(0),end="")
             for _ in range(len(pol[0])-2):
                 print("{0:^3}".format("-"),end="")
-            print("{0:^3}".format(len(pol)-1))
+            print("{0:^3}".format(max_capa2))
             print("\n")
             continue
         i = pol[idx]
         if idx == len(pol)-1:
-            print("{0:^3}".format(20),end=" ")
+            print("{0:^3}".format(max_capa1),end=" ")
         elif idx == 0:
             print("{0:^3}".format(0),end=" ")
         else:
@@ -41,7 +42,8 @@ def printPolicy(k):
         print("\n")
 
 def printValue(k):
-    print("{0:^130}".format("value"))
+    title = "{0:^"+str(max_capa2*6)+"}"
+    print(title.format("value"))
     val = pd.read_csv("value_%d.csv"%k,header=None)
     val = val.applymap(lambda x:round(x,1))
     val = np.array(val)
@@ -51,12 +53,12 @@ def printValue(k):
             print("{0:^6}".format(0),end="")
             for _ in range(len(val[0])-2):
                 print("{0:^6}".format("-"),end="")
-            print("{0:^6}".format(len(val)-1))
+            print("{0:^6}".format(max_capa2))
             print("\n")
             continue
         i = val[idx]
         if idx == len(val)-1:
-            print("{0:^6}".format(20),end=" ")
+            print("{0:^6}".format(max_capa1),end=" ")
         elif idx == 0:
             print("{0:^6}".format(0),end=" ")
         else:
@@ -81,8 +83,8 @@ def policy_evaluation(values,policies):
             continue
         for req_1 in range(s_1_a+1):
             for req_2 in range(s_2_a+1):
-                for ret_1 in range(carout_1+1):
-                    for ret_2 in range(carout_2 + 1):
+                for ret_1 in range(req_1+carout_1+1):
+                    for ret_2 in range(req_2+carout_2 + 1):
                         ns_1 = s_1_a + ret_1 - req_1
                         ns_2 = s_2_a + ret_2 - req_2
                         over_capa1 = ns_1 - min(max_capa1,ns_1)
@@ -107,8 +109,8 @@ def policy_improvement(values,policies):
                 continue
             for req_1 in range(s_1_a+1):
                 for req_2 in range(s_2_a+1):
-                    for ret_1 in range(carout_1 + 1):
-                        for ret_2 in range(carout_2 + 1):
+                    for ret_1 in range(req_1 + carout_1 + 1):
+                        for ret_2 in range(req_2 + carout_2 + 1):
                             ns_1 = s_1_a + ret_1 - req_1
                             ns_2 = s_2_a + ret_2 - req_2
                             over_capa1 = ns_1 - min(max_capa1,ns_1)
